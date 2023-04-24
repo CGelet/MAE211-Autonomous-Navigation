@@ -1,0 +1,6 @@
+{
+    "port": "/dev/tty.usbserial-10",
+    "board": "atmel-avr-xminis:avr:atmega328p_xplained_mini",
+    "programmer": "medbg",
+    "sketch": "TEST_MAE211.ino"
+}
