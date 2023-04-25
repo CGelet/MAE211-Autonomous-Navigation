@@ -8,16 +8,18 @@
 // USS Pins and Vars
 const int trigPinL = 8; // USS Trig Pin L
 const int trigPinR = 3; // USS Trig Pin R
-const int trigPinF = 6; // USS Trig Pin F
+const int trigPinF = 12; // USS Trig Pin F
 const int echoPinL = 7; // USS recvPin L
 const int echoPinR = 2; // USS recvPin R
-const int echoPinF = 5; // USS recvPin F
+const int echoPinF = 11; // USS recvPin F
 long int distance, duration;
+int k = 100;
 
 
 // Restriction Variables
-const int minDistFront = 15; // Minimum distance before it will redirect
-const int minDistSide = 15; // Minimum distance before it will redirect
+const int minDistFront = 24; // Minimum distance before it will redirect
+const int minDistSide = 4; // Minimum distance before it will redirect
+const int  distParm = 20;
 
 // IR Receiver Pins and Vars
 const int irRecvPin = 13; // IR Recieve Pin
@@ -25,10 +27,11 @@ int cmd;
 
 // Motor Pins and Vars
 const int motorLPin = 9; // Left Motor Pin (IN1)
-const int motorLRev = 10; // Left Motor Reverse Pin (IN2)
-const int motorRPin = 11; // Right Motor Pin (IN3)
-const int motorRRev = 12; // Right Motor Reverse Pin (IN4)
+const int motorLRev = 5; // Left Motor Reverse Pin (IN2)
+const int motorRPin = 10; // Right Motor Pin (IN3)
+const int motorRRev = 6; // Right Motor Reverse Pin (IN4)
 
+const int speed = 110;
 void setup() {
     Serial.begin(9600); // Serial Readout is 9600
     pinMode(motorRRev,OUTPUT);
@@ -129,9 +132,9 @@ void shift (){
     Serial.println(distanceR);
     Serial.println(" ");
 
-    if (distanceF <= minDistFront && distanceL <= minDistSide && distanceR <= minDistSide) {
+    /*if (distanceF <= minDistFront && distanceL <= minDistSide && distanceR <= minDistSide) {
         reverse();
-    } else if (distanceF > distanceL && distanceF > distanceR) {
+    } */if (distanceF > distanceL && distanceF > distanceR) {
         forward();
     } else if (distanceF < distanceL && distanceR < distanceL) {
         turnLeft();
@@ -143,27 +146,52 @@ void shift (){
 
 
 void forward() {
-    digitalWrite(motorLPin, HIGH);
-    digitalWrite(motorRPin, HIGH);
+    digitalWrite(motorRRev, LOW);
+    digitalWrite(motorLRev, LOW);
+    long distanceL = sensDist(echoPinL,trigPinL);
+    long distanceR = sensDist(echoPinR,trigPinR);
+    long centerDeviation = distanceL - distanceR;
+    if (distanceL >=20 || distanceR >=20) {
+        analogWrite(motorLPin, speed);
+        analogWrite(motorRPin, speed);
+    } else if (centerDeviation < 0) {
+        analogWrite(motorLPin, speed*1.4);
+        analogWrite(motorRPin, (speed-centerDeviation*10));
+    } else if (centerDeviation > 0) {
+        analogWrite(motorRPin, speed);
+        analogWrite(motorLPin, (speed-centerDeviation*10));
+    } else {
+        analogWrite(motorLPin, speed);
+        analogWrite(motorRPin, speed);
+    } 
     return;
+   /*
+    digitalWrite(motorRRev, LOW);
+    digitalWrite(motorLRev, LOW);
+    analogWrite(motorLPin, speed);
+    analogWrite(motorRPin, speed);
+    return;
+    */
 }
 
 void turnLeft() {
-    digitalWrite(motorLPin, LOW);
-    digitalWrite(motorRPin, HIGH);
+    stop();
+    //analogWrite(motorLRev, (speed*1.4));
+    analogWrite(motorRPin, speed*2);
     return;
 }
 
 void turnRight() {
-    digitalWrite(motorRPin, LOW);
-    digitalWrite(motorLPin, HIGH);
+    stop();
+    //analogWrite(motorRRev, (speed*1.4));
+    analogWrite(motorLPin, speed*2);
     return;
 }
 
 void reverse() {
     stop();
-    digitalWrite(motorRRev, HIGH);
-    digitalWrite(motorLRev, HIGH);
+    analogWrite(motorRRev, speed);
+    analogWrite(motorLRev, speed);
     delay(1000);
     shift();
     delay(1000);
@@ -176,5 +204,7 @@ void stop(){
     Serial.print('Stopped');
     digitalWrite(motorLPin, LOW);
     digitalWrite(motorRPin, LOW);
+    digitalWrite(motorRRev, LOW);
+    digitalWrite(motorLRev, LOW);
     return;
 }
