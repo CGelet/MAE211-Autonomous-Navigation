@@ -1,3 +1,5 @@
+/* MAE-211 Project */
+
 #include <IRremote.h> // IR Recv. Library
 
 // USS Pins and Vars
@@ -23,20 +25,21 @@ const int motorLRev = 5; // Left Motor Reverse Pin (IN2)
 const int motorRPin = 10; // Right Motor Pin (IN3)
 const int motorRRev = 6; // Right Motor Reverse Pin (IN4)
 
-const int speed = 110;
-void setup() {
+const int speed = 110; // speed value out of 255 which the motors will be ran at
+
+void setup() { // Setting up output modes and initialization 
     Serial.begin(9600); // Serial Readout is 9600 Baud Rate
-    pinMode(motorRRev,OUTPUT);
+    pinMode(motorRRev,OUTPUT); // Pinmode output for motor variables
     pinMode(motorLRev,OUTPUT);
     pinMode(motorRPin,OUTPUT);
     pinMode(motorLPin,OUTPUT);
 
-    pinMode(trigPinL, OUTPUT); // Sensor Reception
-    pinMode(trigPinR, OUTPUT); // Sensor Reception
-    pinMode(trigPinF, OUTPUT); // Sensor Reception
-    pinMode(echoPinL, INPUT); // Reception pin from Sens L
-    pinMode(echoPinR, INPUT); // Reception pin from Sens R
-    pinMode(echoPinF, INPUT); // Reception pin from Sens F
+    pinMode(trigPinL, OUTPUT); // Sensor triggering pins
+    pinMode(trigPinR, OUTPUT); 
+    pinMode(trigPinF, OUTPUT); 
+    pinMode(echoPinL, INPUT); // Reception pin from USS Sensors
+    pinMode(echoPinR, INPUT); 
+    pinMode(echoPinF, INPUT); 
 
     IrReceiver.begin(irRecvPin); // Receiver enables
 
@@ -168,7 +171,7 @@ void turnRight() { // turn right function
 void reverse() { // reverse function
     stop(); // Quickly stop the robot to ensure nothing brakes or goes forward
     analogWrite(motorRRev, speed); // Set the reverse pins to max speed
-    analogWrite(motorLRev, speed); // Set the reverse pins to max speed
+    analogWrite(motorLRev, speed); 
     delay(1000); // Set a delay to ensure that it backs a way for at least a bit
     shift(); // By clever configuration, due to the fact that when it reverses, if it wants to reverse to the left, and breaks into the turn left,  
     //when it activates the right motor, it will stop the left motor, and will reverse the right motor to reverse to the left
